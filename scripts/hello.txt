@@ -1,0 +1,2 @@
+All programs placed here are calude-modified variants of my own
+Mostly for plotting and logging purposes
