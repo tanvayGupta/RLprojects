@@ -45,7 +45,10 @@ class GridWorld():
 
 
     def step(self):
-        max_idx = np.argmax(self.av[self.pos[0],self.pos[1]])
+        if (np.random.rand() < 0.1):
+            max_idx = np.random.randint(0,4)
+        else:
+            max_idx = np.argmax(self.av[self.pos[0],self.pos[1]])
         # print(f"{max_idx} is the max")
         match max_idx:
             case 0: #LEFT
@@ -63,20 +66,20 @@ class GridWorld():
             case _:
                 print("idk if this could be triggered, bravo")
 
-        reward = self.step_reward
+        # reward = self.step_reward
         if(self.next_pos in self.pits):
             print(f"I fell in pit {self.next_pos} \n\n")
-            reward = self.pit_reward
+            self.av[self.pos[0],self.pos[1],max_idx] += ALPHA *  (self.pit_reward + (GAMMA * self.av[(self.next_pos[0],self.next_pos[1])].max()) - self.av[self.pos[0],self.pos[1],max_idx])
             self.pos = [0,0]
             return
         elif(self.next_pos == self.goal):
             print("I reached goal")
             self.goal_counter += 1
-            reward = self.goal_reward
+            self.av[self.pos[0],self.pos[1],max_idx] += ALPHA *  (self.goal_reward + (GAMMA * self.av[(self.next_pos[0],self.next_pos[1])].max()) - self.av[self.pos[0],self.pos[1],max_idx])
             self.pos = [0,0]
             return
             
-        self.av[self.pos[0],self.pos[1],max_idx] += ALPHA *  (reward + (GAMMA * self.av[(self.next_pos[0],self.next_pos[1])].max()))
+        self.av[self.pos[0],self.pos[1],max_idx] += ALPHA *  (self.step_reward + (GAMMA * self.av[(self.next_pos[0],self.next_pos[1])].max()) - self.av[self.pos[0],self.pos[1],max_idx])
 
         self.pos = self.next_pos
         print(self.av[self.pos[0],self.pos[1],0])
@@ -85,3 +88,10 @@ class GridWorld():
 
 
  
+env = GridWorld(size=5)
+
+steps = 400
+for i in range(steps):
+    env.step()
+
+print(f"reached {env.goal_counter} goals in {steps} steps")
